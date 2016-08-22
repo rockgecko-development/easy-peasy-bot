@@ -92,23 +92,50 @@ controller.on('bot_channel_join', function (bot, message) {
 controller.hears('hello', ['mention', 'direct_mention', 'direct_message'], apiai.hears, function (bot, message) {
     bot.reply(message, 'Hello!');
 });
-
+/*
 controller.hears(['flights'], ['direct_message', 'mention', 'direct_mention'], apiai.hears, function (bot, message) {
    if(message.fulfillment.speech !== '') {
        bot.reply(message, message.fulfillment.speech);
    } else {
        bot.reply(message, "You requested to fly to " + message.entities['destination'] + " on " + message.entities['departureDate']+".");
    }
-});
+});*/
 var http = require("http");
 controller.hears(['^Flight ([A-Z]{2,3}[0-9]{1,4})$'], ['direct_message'], function(bot, message){
     console.log('I hear '+message.match[1]);
     bot.reply(message, 'searching for '+message.match[1]);
-    http.get(process.ENV.WEBJET_BACKEND_URL+"/json/reply/TestGetFlightInfo?ident="+message.match[1], function(e,r,b) {
-        var firstFlight = b.flights[0];
+    
+    console.log('url: '+process.env.WEBJET_BACKEND_URL+"/json/reply/TestGetFlightInfo?ident="+message.match[1]);
+    
+    
+    var callback = function(response){
+        var str='';
+        response.on('data', function(chunk){
+            str+=chunk;
+        });
+        response.on('end',function(){
+            console.log(str);
+            var result = JSON.parse(str);
+             console.log('result data: '+result);
+        var firstFlight = result.flights[0];
         var reply ='Found a flight from '+ firstFlight.originName+' to '+ firstFlight.destinationName;
         bot.reply(message, reply);
-    });
+        });
+        response.on('error',function(e){
+            console.log(e);
+        })
+    }
+    http.get(process.env.WEBJET_BACKEND_URL+"/json/reply/TestGetFlightInfo?ident="+message.match[1], callback).end();
+    /*
+    http.get(process.env.WEBJET_BACKEND_URL+"/json/reply/TestGetFlightInfo?ident="+message.match[1], function(result) {
+        console.log('result: '+result);
+        console.log('result body: '+result.body);
+        console.log('result data: '+result.data);
+        console.log('result data: '+result.result);
+        var firstFlight = result.flights[0];
+        var reply ='Found a flight from '+ firstFlight.originName+' to '+ firstFlight.destinationName;
+        bot.reply(message, reply);
+    });*/
         
     
 });
