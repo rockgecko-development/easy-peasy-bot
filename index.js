@@ -100,7 +100,16 @@ controller.hears(['flights'], ['direct_message', 'mention', 'direct_mention'], a
        bot.reply(message, "You requested to fly to " + message.entities['destination'] + " on " + message.entities['departureDate']+".");
    }
 });
-
+var http = require("http");
+controller.hears(['^Flight ([A-Z]{2,3}[0-9]{1-4})$'], ['direct_message'], function(bot, message){
+    http.get(process.ENV.WEBJET_BACKEND_URL+"/json/reply/TestGetFlightInfo?ident="+message.match[1], function(e,r,b) {
+        var firstFlight = b.flights[0];
+        var reply ='Found a flight from '+ firstFlight.originName+' to '+ firstFlight.destinationName;
+        bot.reply(message, reply);
+    });
+        
+    
+});
 /**
  * AN example of what could be:
  * Any un-handled direct mention gets a reaction and a pat response!

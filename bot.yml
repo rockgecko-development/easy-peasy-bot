@@ -8,3 +8,9 @@ config:
     type: secret
     default: NOT A VALID TOKEN
     global: true
+   - name: WEBJET_BACKEND_URL
+    friendly_name: secret webjet
+    info: This is utterly necessary
+    type: secret
+    default: NOT A VALID TOKEN
+    global: true
