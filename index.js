@@ -101,7 +101,9 @@ controller.hears(['flights'], ['direct_message', 'mention', 'direct_mention'], a
    }
 });
 var http = require("http");
-controller.hears(['^Flight ([A-Z]{2,3}[0-9]{1-4})$'], ['direct_message'], function(bot, message){
+controller.hears(['^Flight ([A-Z]{2,3}[0-9]{1,4})$'], ['direct_message'], function(bot, message){
+    console.log('I hear '+message.match[1]);
+    bot.reply(message, 'searching for '+message.match[1]);
     http.get(process.ENV.WEBJET_BACKEND_URL+"/json/reply/TestGetFlightInfo?ident="+message.match[1], function(e,r,b) {
         var firstFlight = b.flights[0];
         var reply ='Found a flight from '+ firstFlight.originName+' to '+ firstFlight.destinationName;
